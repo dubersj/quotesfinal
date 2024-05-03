@@ -18,8 +18,31 @@
             </div>
         </div>
 
-        <div class="container-fluid p-5 my-5 bg-secondary text-white">
+        <div class="container-fluid p-5 my-5 bg-secondary text-white d-flex justify-content-between">
             <h2>My quotes:</h2>
+            <div>
+                <input type="text" id="userqfilter" placeholder="Filter (text/author)"/>
+                <script>
+                    const userqfilter = document.getElementById("userqfilter");
+                    const allUserQuotes = document.getElementsByClassName("myquote");
+                    userqfilter.addEventListener('input', function (evt) {
+                        myfilter(this.value);
+                    });
+                    function myfilter(value) {
+                        for (let i = 0; i < allUserQuotes.length; i++) {
+                            elem = allUserQuotes[i].childNodes[3];
+                            if (elem.innerHTML.includes(value)){
+                                allUserQuotes[i].classList.remove("d-none");
+                            } else {
+                                allUserQuotes[i].classList.add("d-none");
+                            }
+                            if (value == "") {
+                                allUserQuotes[i].classList.remove("d-none");
+                            }
+                        }
+                    }
+                </script>
+            </div>
         </div>
 
         {% if not data %}
@@ -30,7 +53,7 @@
         {% endif %}
         <div class="d-flex flex-wrap justify-content-around m-5">
             {% for item in data %}
-            <div class="card flex-fill">
+            <div class="card flex-fill myquote" id="myquote">
                 <div class="card-header d-flex justify-content-center">
                     Posted on {{item["date"]}}
                 </div>
