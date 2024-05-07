@@ -1,121 +1,232 @@
 <html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    </head>
-    <body>
-        <div class="d-flex justify-content-between">
-            <div class="p-5">
-                <h1>Quotes<span class="badge bg-secondary">CRUD</span></h1>
-                <h3 class="text-secondary">Welcome, {{user}}!</h3>
-            </div>
-            <div class="p-5">
-                <button type="button" class="btn btn-lg btn-primary" onclick="window.location.href = '/add';">Add New</button>
-                <button type="button" class="btn btn-lg btn-danger" onclick="window.location.href = '/logout';">Log Out</button>
-            </div>
-        </div>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  </head>
+  <body>
+    <div id="app" class="d-flex justify-content-between">
+      <div class="p-5">
+        <h1>Quotes<span class="badge bg-secondary">CRUD</span></h1>
+        <h3 class="text-secondary">Welcome, {{user}}!</h3>
+      </div>
+      <div class="p-5">
+        <button type="button" class="btn btn-lg btn-primary" @click="addQoute">
+          Add New
+        </button>
+        <button type="button" class="btn btn-lg btn-danger" @click="logout">
+          Log Out
+        </button>
+      </div>
+    </div>
 
-        <div class="container-fluid p-5 my-5 bg-secondary text-white d-flex justify-content-between">
-            <h2>My quotes:</h2>
-            <div>
-                <input type="text" id="userqfilter" placeholder="Filter (text/author)"/>
-                <script>
-                    const userqfilter = document.getElementById("userqfilter");
-                    const allUserQuotes = document.getElementsByClassName("myquote");
-                    userqfilter.addEventListener('input', function (evt) {
-                        myfilter(this.value);
-                    });
-                    function myfilter(value) {
-                        for (let i = 0; i < allUserQuotes.length; i++) {
-                            elem = allUserQuotes[i].childNodes[3];
-                            if (elem.innerHTML.includes(value)){
-                                allUserQuotes[i].classList.remove("d-none");
-                            } else {
-                                allUserQuotes[i].classList.add("d-none");
-                            }
-                            if (value == "") {
-                                allUserQuotes[i].classList.remove("d-none");
-                            }
-                        }
-                    }
-                </script>
+    <div
+      class="container-fluid p-5 my-5 bg-secondary text-white d-flex justify-content-between"
+    >
+      <h2>My quotes:</h2>
+      <div>
+        <input
+          type="text"
+          id="userqfilter"
+          v-model="filterText"
+          placeholder="Filter (text/author)"
+        />
+        <script>
+          const userqfilter = document.getElementById("userqfilter");
+          const allUserQuotes = document.getElementsByClassName("myquote");
+          userqfilter.addEventListener("input", function (evt) {
+            myfilter(this.value);
+          });
+          function myfilter(value) {
+            for (let i = 0; i < allUserQuotes.length; i++) {
+              elem = allUserQuotes[i].childNodes[3];
+              if (elem.innerHTML.includes(value)) {
+                allUserQuotes[i].classList.remove("d-none");
+              } else {
+                allUserQuotes[i].classList.add("d-none");
+              }
+              if (value == "") {
+                allUserQuotes[i].classList.remove("d-none");
+              }
+            }
+          }
+        </script>
+      </div>
+    </div>
+
+    {% if not data %}
+    <div class="alert alert-warning m-5">
+      <strong>Note!</strong> There are no quotes under this user. Try adding
+      one!
+    </div>
+    {% endif %}
+
+    <!-- <div v-for="item in data" :key="item.id"></div> -->
+
+    <div class="d-flex flex-wrap justify-content-around m-5">
+      {% for item in data %}
+
+      <div class="card flex-fill myquote" id="myquote">
+        <div class="card-header d-flex justify-content-center">
+          Posted on {{item["date"]}}
+        </div>
+        <div class="card-body d-flex align-items-center">
+          {{item["text"]}}
+          <br />
+          - {{item["author"]}}
+        </div>
+        <div class="card-footer">
+          <div class="d-flex justify-content-between">
+            <div class="d-flex flex-row">
+              {% if item["public"] %}
+              <span class="badge bg-success">Public</span>&nbsp; {% else %}
+              <span class="badge bg-danger">Private</span>&nbsp; {% endif %} {%
+              if item["comments"] %}
+              <span class="badge bg-success">Comments On</span>
             </div>
+            <div class="d-flex flex-row-reverse">
+              <a href="/comments/{{item['_id']}}"
+                ><i class="material-icons">chat</i></a
+              >&nbsp; {% else %}
+              <span class="badge bg-danger">Comments Off</span>
+            </div>
+            <div class="d-flex flex-row-reverse">
+              {% endif %}
+              <a href="/edit/{{item['_id']}}"
+                ><i class="material-icons">mode_edit</i></a
+              >&nbsp;
+              <a
+                href="/delete/{{item['_id']}}"
+                onclick="return confirm('Are you sure you want to delete this quote?');"
+                ><i class="material-icons">delete</i></a
+              >&nbsp;
+            </div>
+          </div>
         </div>
+      </div>
+      {% endfor %}
+    </div>
 
-        {% if not data %}
-        <div class="alert alert-warning m-5">
-            <strong>Note!</strong> There are no quotes under this user. Try adding one!
+    <div class="container-fluid p-5 my-5 bg-secondary text-white">
+      <h2>All quotes:</h2>
+    </div>
+
+    <div class="d-flex flex-wrap justify-content-around m-5">
+      {% for item in alldata %}
+      <div class="card flex-fill">
+        <div class="card-header">
+          Submitted by: <em>{{item["owner"]}} </em>
+          <!-- svg for friend request icon -->
+
+          <button class="btn btn-primary btn-sm">
+            <svg
+              class="justify-contentn-end"
+              hight="60"
+              width="60"
+              fill="#000000"
+              viewBox="-690 -690 2380.00 2380.00"
+              version="1.1"
+              xmlns="http://www.w3.org/2000/svg"
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+              enable-background="new 0 0 1000 1000"
+              xml:space="preserve"
+              transform="matrix(1, 0, 0, 1, 0, 0)"
+            >
+              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+              <g
+                id="SVGRepo_tracerCarrier"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke="#CCCCCC"
+                stroke-width="200"
+              >
+                <g>
+                  <g
+                    transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)"
+                  >
+                    <path
+                      d="M2262.7,4985c-30.6-30.6-34.5-57.4-26.8-204.8c26.8-566.6,36.4-1018.4,23-1054.8c-26.8-74.7-95.7-72.7-245,3.8c-130.2,68.9-137.8,68.9-183.8,40.2c-26.8-17.2-47.9-47.9-47.9-67c0-21,53.6-275.6,118.7-570.5l116.8-532.2l13.4-660.4l11.5-660.4l90-266.1c206.8-606.9,516.9-1035.7,945.7-1307.5c141.7-90,143.6-91.9,132.1-158.9c-5.7-36.4-11.5-86.1-11.5-107.2c0-40.2-11.5-42.1-291-51.7C2592-624,2475.2-647,2289.5-738.8c-231.6-114.9-312-201-863.4-928.4c-287.1-377.1-543.7-727.4-568.6-775.3c-26.8-47.9-68.9-147.4-93.8-222.1c-42.1-126.3-44-160.8-44-631.7c0-490.1,1.9-499.6,53.6-652.8c86.1-260.4,262.3-488.2,486.2-631.7c93.8-61.3,271.8-141.7,312-141.7c11.5,0,19.1,158.9,19.1,407.8c0,222.1,9.6,438.4,19.1,476.7c24.9,88,126.3,178,218.2,195.3c107.2,21.1,227.8-44,277.6-149.3c36.4-74.7,40.2-114.9,40.2-534.1V-4780H4022h1876v474.8c0,545.6,5.7,568.6,164.6,637.5c97.7,44.1,174.2,36.4,262.3-24.9c95.7-67,99.5-90,109.1-599.2l9.6-478.6l67,5.7c84.2,9.6,296.7,74.7,382.9,118.7c310.1,158.9,547.5,474.8,620.3,828.9c40.2,195.3,42.1,827,1.9,1018.4c-34.5,162.7-151.2,403.9-264.2,543.7l-84.3,105.3l-323.5,1.9c-268,1.9-350.4,9.6-476.7,44c-515,141.7-957.2,503.5-1186.9,970.6c-447.9,917-74.7,2015.8,838.5,2467.6l149.3,72.8l-5.7,932.3l-5.7,930.4l-49.8,137.8c-109.1,294.8-331.2,543.7-601.1,668.1c-214.4,97.6-271.8,103.4-1079.7,103.4h-744.7l-183.8,229.7c-101.5,124.4-201,237.4-222.1,248.9c-53.6,28.7-109.1-3.8-143.6-86.1c-47.9-120.6-103.4-99.6-415.4,158.9C2322.1,5054,2327.8,5050.1,2262.7,4985z"
+                    ></path>
+                    <path
+                      d="M8721.7,945.8c-51.7-24.9-352.2-312-897.8-859.5l-823.2-825.1l-380.9,392.4c-210.6,216.3-405.8,403.9-434.6,419.2c-258.4,134-574.3-61.3-574.3-354.2c0-59.4,15.3-126.3,38.3-172.3c49.8-97.6,1060.5-1140.9,1148.6-1186.9c111-57.4,195.3-65.1,319.7-28.7c109.1,30.6,122.5,44,1083.5,1001.2c536,534.1,993.5,1005,1018.4,1047.1c91.9,155.1,78.5,333.1-32.5,461.3C9066.3,978.3,8880.6,1020.4,8721.7,945.8z"
+                    ></path>
+                  </g>
+                </g>
+              </g>
+              <g id="SVGRepo_iconCarrier">
+                <g>
+                  <g
+                    transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)"
+                  >
+                    <path
+                      d="M2262.7,4985c-30.6-30.6-34.5-57.4-26.8-204.8c26.8-566.6,36.4-1018.4,23-1054.8c-26.8-74.7-95.7-72.7-245,3.8c-130.2,68.9-137.8,68.9-183.8,40.2c-26.8-17.2-47.9-47.9-47.9-67c0-21,53.6-275.6,118.7-570.5l116.8-532.2l13.4-660.4l11.5-660.4l90-266.1c206.8-606.9,516.9-1035.7,945.7-1307.5c141.7-90,143.6-91.9,132.1-158.9c-5.7-36.4-11.5-86.1-11.5-107.2c0-40.2-11.5-42.1-291-51.7C2592-624,2475.2-647,2289.5-738.8c-231.6-114.9-312-201-863.4-928.4c-287.1-377.1-543.7-727.4-568.6-775.3c-26.8-47.9-68.9-147.4-93.8-222.1c-42.1-126.3-44-160.8-44-631.7c0-490.1,1.9-499.6,53.6-652.8c86.1-260.4,262.3-488.2,486.2-631.7c93.8-61.3,271.8-141.7,312-141.7c11.5,0,19.1,158.9,19.1,407.8c0,222.1,9.6,438.4,19.1,476.7c24.9,88,126.3,178,218.2,195.3c107.2,21.1,227.8-44,277.6-149.3c36.4-74.7,40.2-114.9,40.2-534.1V-4780H4022h1876v474.8c0,545.6,5.7,568.6,164.6,637.5c97.7,44.1,174.2,36.4,262.3-24.9c95.7-67,99.5-90,109.1-599.2l9.6-478.6l67,5.7c84.2,9.6,296.7,74.7,382.9,118.7c310.1,158.9,547.5,474.8,620.3,828.9c40.2,195.3,42.1,827,1.9,1018.4c-34.5,162.7-151.2,403.9-264.2,543.7l-84.3,105.3l-323.5,1.9c-268,1.9-350.4,9.6-476.7,44c-515,141.7-957.2,503.5-1186.9,970.6c-447.9,917-74.7,2015.8,838.5,2467.6l149.3,72.8l-5.7,932.3l-5.7,930.4l-49.8,137.8c-109.1,294.8-331.2,543.7-601.1,668.1c-214.4,97.6-271.8,103.4-1079.7,103.4h-744.7l-183.8,229.7c-101.5,124.4-201,237.4-222.1,248.9c-53.6,28.7-109.1-3.8-143.6-86.1c-47.9-120.6-103.4-99.6-415.4,158.9C2322.1,5054,2327.8,5050.1,2262.7,4985z"
+                    ></path>
+                    <path
+                      d="M8721.7,945.8c-51.7-24.9-352.2-312-897.8-859.5l-823.2-825.1l-380.9,392.4c-210.6,216.3-405.8,403.9-434.6,419.2c-258.4,134-574.3-61.3-574.3-354.2c0-59.4,15.3-126.3,38.3-172.3c49.8-97.6,1060.5-1140.9,1148.6-1186.9c111-57.4,195.3-65.1,319.7-28.7c109.1,30.6,122.5,44,1083.5,1001.2c536,534.1,993.5,1005,1018.4,1047.1c91.9,155.1,78.5,333.1-32.5,461.3C9066.3,978.3,8880.6,1020.4,8721.7,945.8z"
+                    ></path>
+                  </g>
+                </g>
+              </g>
+            </svg>
+          </button>
         </div>
-
+        <div class="card-body d-flex align-items-center">
+          {{item["text"]}}
+          <br />
+          - {{item["author"]}}
+        </div>
+        {% if item["comments"] %}
+        <div class="card-footer d-flex justify-content-between">
+          <a href="/comments/{{item['_id']}}"
+            ><i class="material-icons">chat</i></a
+          >
+          <span class="text-muted">{{item["date"]}}</span>
+        </div>
+        {% else %}
+        <div class="card-footer d-flex justify-content-between">
+          <i
+            class="material-icons text-muted"
+            onclick="alert('Owner has disabled comments.');"
+            >comments_disabled</i
+          >
+          <span class="text-muted">{{item["date"]}}</span>
+        </div>
         {% endif %}
-        <div class="d-flex flex-wrap justify-content-around m-5">
-            {% for item in data %}
-            <div class="card flex-fill myquote" id="myquote">
-                <div class="card-header d-flex justify-content-center">
-                    Posted on {{item["date"]}}
-                </div>
-                <div class="card-body d-flex align-items-center">
-                {{item["text"]}}
-                <br/>
-                - {{item["author"]}}
-                </div>
-                <div class="card-footer">
-                    <div class="d-flex justify-content-between">
-                        <div class="d-flex flex-row">
-                            {% if item["public"] %}
-                                <span class="badge bg-success">Public</span>&nbsp;
-                            {% else %}
-                                <span class="badge bg-danger">Private</span>&nbsp;
-                            {% endif %}
-                            {% if item["comments"] %}
-                                <span class="badge bg-success">Comments On</span>
-                        </div>
-                        <div class="d-flex flex-row-reverse">
-                            <a href="/comments/{{item['_id']}}"><i class="material-icons">chat</i></a>&nbsp;
-                            {% else %}
-                                <span class="badge bg-danger">Comments Off</span>
-                        </div>
-                        <div class="d-flex flex-row-reverse">
-                            {% endif %}
-                            <a href="/edit/{{item['_id']}}"><i class="material-icons">mode_edit</i></a>&nbsp;
-                            <a href="/delete/{{item['_id']}}" onclick="return confirm('Are you sure you want to delete this quote?');"><i class="material-icons">delete</i></a>&nbsp;
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-
-        <div class="container-fluid p-5 my-5 bg-secondary text-white">
-            <h2>All quotes:</h2>
-        </div>
-
-        <div class="d-flex flex-wrap justify-content-around m-5">
-            {% for item in alldata %}
-            <div class="card flex-fill">
-                <div class="card-header">Submitted by: <em>{{item["owner"]}}</em></div>
-                <div class="card-body d-flex align-items-center">
-                {{item["text"]}}
-                <br/>
-                - {{item["author"]}}
-                </div>
-                {% if item["comments"] %}
-                <div class="card-footer d-flex justify-content-between">
-                    <a href="/comments/{{item['_id']}}"><i class="material-icons">chat</i></a>
-                    <span class="text-muted">{{item["date"]}}</span>
-                </div>
-                {% else %}
-                <div class="card-footer d-flex justify-content-between">
-                    <i class="material-icons text-muted" onclick="alert('Owner has disabled comments.');">comments_disabled</i>
-                    <span class="text-muted">{{item["date"]}}</span>
-                </div>
-                {% endif %}
-            </div>
-            {% endfor %}
-        </div>
-
-    </body>
+      </div>
+      {% endfor %}
+    </div>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+      const { createApp } = Vue;
+      createApp({
+        filterText: "",
+        data() {
+          return {
+            user: "{{user}}",
+          };
+        },
+        mounted() {
+          console.log(this.data.length);
+        },
+        methods: {
+          logout() {
+            window.location.href = "/logout";
+          },
+          addQoute() {
+            window.location.href = "/add";
+          },
+          addFriend() {},
+        },
+      }).mount("#app");
+    </script>
+  </body>
 </html>

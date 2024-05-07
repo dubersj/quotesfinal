@@ -7,6 +7,7 @@ from timeString import timeString
 
 app = Flask(__name__)
 
+
 # create a mongita client connection
 client = MongitaClientDisk()
 
@@ -70,8 +71,9 @@ def get_quotes():
     alldata = list(quotes_collection.find({"public":True}))
     for item in mydata:
         item["_id"] = str(item["_id"])
-        item["object"] = ObjectId(item["_id"])
+        item["object"] = str(ObjectId(item["_id"]))
     # display the data
+    print(mydata)
     html = render_template(
         "quotes.html",
         data=mydata,
@@ -587,3 +589,6 @@ def get_delete(id=None):
 
     # or logout
     return redirect("/logout")
+
+if __name__=="__main__":
+    app.run(debug=True, host="0.0.0.0", port=5001)

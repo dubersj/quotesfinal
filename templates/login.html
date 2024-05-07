@@ -8,7 +8,7 @@
 </head>
 
 <body>
-    <div class="d-flex justify-content-between">
+    <div id="login" class="d-flex justify-content-between">
         <div class="p-5">
             <h1>Quotes<span class="badge bg-secondary">CRUD</span></h1>
         </div>
@@ -25,7 +25,7 @@
     {% endif %}
     {% if errCode == 1 %}
     <div class="alert alert-danger m-5">
-        <strong>Error!</strong> This user doesn't exist! Please register <a href='/register'>here.</a>
+        <strong>Error!</strong> This user doesn't exist! Please register <a href="/register">here.</a>
     </div>
     {% endif %}
     {% if errCode == 2 %}
@@ -52,6 +52,44 @@
         </div>
         <button type="submit" class="btn btn-primary">Login</button>
     </form>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+        const { createApp } = Vue;
+        createApp({
+            data(){
+                return{
+                    username: '',
+                    password: '',
+                    errCode: null
+                }
+            },
+            methods: {
+                register() {
+                    window.location.href = '/register';
+                },
+                login() {
+                    const formData= new FormData()
+                    formData.append("user", this.username)
+                    formData.append("pass", this.password)
+                    fetch("/login",{
+                        method:"POST",
+                        body:formData
+                    }).then(response => {
+                        if (response.data.logged_in) {
+                            window.location.href = '/quotes';
+                        } else {
+                            this.errCode = response.data.errCode;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error during login:', error);
+                        this.errCode = error.response.status
+                    })
+                }
+            },
+        }).mount("#login")
+    </script>
 </body>
 
 </html>
