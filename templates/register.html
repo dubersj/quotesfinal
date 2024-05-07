@@ -8,13 +8,13 @@
 </head>
 
 <body>
-    <div class="d-flex justify-content-between">
+    <div id="register" class="d-flex justify-content-between">
         <div class="p-5">
             <h1>Quotes<span class="badge bg-secondary">CRUD</span></h1>
         </div>
         <div class="p-5">
             <h3 class="text-primary">Already Registered?</h3>
-            <button class="btn btn-primary" onclick="window.location.href='/login';">Log In</button>
+            <button class="btn btn-primary" @click="login">Log In</button>
         </div>
     </div>
     {% if errCode == 1 %}
@@ -41,10 +41,54 @@
             <input type="password" class="form-control" id="pass2" placeholder="Enter password again..." name="pass2" required>
         </div>
         <div class="text-muted mb-3">
-            Created by Steve Duber for Web Development I, 2024
+           
         </div>
         <button type="submit" class="btn btn-primary">Register</button>
     </form>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+         const { createApp } = Vue;
+         createApp({
+            data(){
+                return{
+                    user:"",
+                    pass:"",
+                    pass2:"",
+                    errCode:""
+                }
+            },
+            methods:{
+                login(){
+                    window.location.href = '/login';
+                }, 
+                register() {
+                    if (this.pass !== this.pass2) {
+                        this.errCode = 2;
+                        return;
+                    }
+                    const formData = new FormData();
+                    formData.append("user", this.user);
+                    formData.append("pass", this.pass);
+                    formData.append("pass2", this.pass2);
+                    fetch("/register", {
+                        method: "POST",
+                        body: formData
+                    }).then(response => {
+                        if (response.ok) {
+                            window.location.href = '/login';
+                        } else if (response.status === 409) {
+                            this.errCode = 1;  
+                        } else {
+                            this.errCode = response.status; 
+                        }
+                    }).catch(error => {
+                        console.error('Registration failed:', error);
+                    });
+                }
+            }
+         }).mount("#register")
+    </script>
 </body>
 
 </html>
