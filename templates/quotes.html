@@ -30,12 +30,13 @@
     </div>
 
     <div
-      class="container-fluid p-5 my-5 bg-secondary text-white d-flex justify-content-between"
+      class="container-fluid p-5 my-5 bg-secondary text-white"
     >
-      <h2>My quotes:</h2>
+      <h2 class="mb-2">My quotes:</h2>
       <div>
         <input
           type="text"
+          class="form-control"
           id="userqfilter"
           v-model="filterText"
           placeholder="Filter (text/author)"
@@ -117,17 +118,73 @@
     </div>
 
     <div class="container-fluid p-5 my-5 bg-secondary text-white">
-      <h2>All quotes:</h2>
+      <h2 class="mb-2">All quotes:</h2>
+      <div>
+        <input
+          type="text"
+          class="form-control mb-1"
+          id="allqfilter"
+          v-model="filterText"
+          placeholder="Filter (text/author)"
+        />
+        <input
+          type="text"
+          class="form-control"
+          id="submitterfilter"
+          v-model="filterText"
+          placeholder="Filter (submitter, exact match only)"
+        />
+        <script>
+          const allqfilter = document.getElementById("allqfilter");
+          const submitterfilter = document.getElementById("submitterfilter");
+          const allQuotes = document.getElementsByClassName("allquote");
+          allqfilter.addEventListener("input", function (evt) {
+            allfilter(this.value);
+          });
+          submitterfilter.addEventListener("input", function (evt) {
+            subfilter(this.value);
+          });
+          function allfilter(value) {
+            submitterfilter.value = "";
+            for (let i = 0; i < allQuotes.length; i++) {
+              elem = allQuotes[i].childNodes[3];
+              if (elem.innerHTML.includes(value)) {
+                allQuotes[i].classList.remove("d-none");
+              } else {
+                allQuotes[i].classList.add("d-none");
+              }
+              if (value == "") {
+                allQuotes[i].classList.remove("d-none");
+              }
+            }
+          }
+          function subfilter(value) {
+            allqfilter.value = "";
+            searchQuotes = document.getElementsByClassName(value);
+            for (let i = 0; i < allQuotes.length; i++) {
+                allQuotes[i].classList.add("d-none");
+            }
+            for (let i = 0; i < searchQuotes.length; i++) {
+                searchQuotes[i].classList.remove("d-none");
+            }
+            if (value == "") {
+                for (let i = 0; i < allQuotes.length; i++) {
+                    allQuotes[i].classList.remove("d-none");
+                }
+            }
+          }
+        </script>
+      </div>
     </div>
 
     <div class="d-flex flex-wrap justify-content-around m-5">
       {% for item in alldata %}
-      <div class="card flex-fill">
+      <div class="card flex-fill allquote {{item["owner"]}}">
         <div class="card-header">
           Submitted by: <em>{{item["owner"]}} </em>
           <!-- svg for friend request icon -->
 
-          <button class="btn btn-primary btn-sm">
+          <button class="btn btn-primary btn-sm d-none">
             <svg
               class="justify-contentn-end"
               hight="60"
