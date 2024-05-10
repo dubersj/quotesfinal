@@ -1,9 +1,6 @@
-Requirements left:
+Final project Steve/Praveen, Web Programming I, Spring 2024
 
-* Main page in vue.js
-* search functionality
+Created using Flask/Mongita/Bootstrap/Vue.js, hosted at:
+duber.pythonanywhere.com
 
-Items wanted:
-
-* extra credit friend system
-* account deletion with user quotes/comments too
+Initial code for friend system included or possibly in a branch
